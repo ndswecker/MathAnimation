@@ -2,8 +2,9 @@
 .local/
 .venv/
 __pycache__/
-/web/static/media/dynamic/
 /media/
+/scenes/media/
+/web/static/media/dynamic/
 
 .env
 db.sqlite3
