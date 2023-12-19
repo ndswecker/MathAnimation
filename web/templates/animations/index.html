@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Animations{% endblock %}
+
+{% block content %}
+  <h1>Animations</h1>
+  <ul>
+    <li><a href="{{ url_for('animations.circle') }}">Circle</a></li>
+    <li><a href="{{ url_for('animations.sliding_block') }}">Sliding Block</a></li>
+  </ul>
+{% endblock %}
