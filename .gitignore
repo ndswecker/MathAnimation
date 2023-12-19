@@ -1,0 +1,9 @@
+.idea/
+.local/
+.venv/
+__pycache__/
+/web/static/media/dynamic/
+/media/
+
+.env
+db.sqlite3
