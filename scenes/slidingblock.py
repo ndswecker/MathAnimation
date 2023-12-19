@@ -155,6 +155,13 @@ class DynamicScene(BaseScene):
         )
         self.wait(2)
 
+        self.play(
+            Rotate(vctGroup, angle=RAMP_ANGLES[1] + (PI/2), about_point=[*vctY.get_end()]),
+        )
+        self.play(
+            vctGroup.animate.flip().move_to(RAMP_COORD[1], aligned_edge=(DR)).shift([0, -0.2, 0]),
+        )
+
         # Slider proceeds to bottom of ramp
         sliderGroup = Group(slider, vctD)
         self.play(
