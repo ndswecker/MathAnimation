@@ -2,6 +2,7 @@
 .local/
 .venv/
 __pycache__/
+/logs/
 /media/
 /scenes/media/
 /web/static/media/dynamic/
