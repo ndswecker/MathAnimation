@@ -1,6 +1,12 @@
 import math
 from manim import *
-from scenes.base import BaseScene
+from manim.utils.file_ops import open_file as open_media_file 
+
+try:
+    from scenes.base import BaseScene
+except ModuleNotFoundError:
+    from base import BaseScene
+
 from pydantic import BaseModel
 
 
@@ -188,6 +194,7 @@ class DynamicScene(BaseScene):
         )
         self.wait(2)
 
-
-if __name__ == "__main__":
-    DynamicScene(params=Params()).render()
+if __name__ == '__main__':
+    scene = DynamicScene(params=Params())
+    scene.render()
+    open_media_file(scene.renderer.file_writer.movie_file_path)
