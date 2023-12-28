@@ -37,17 +37,28 @@ class DynamicScene(BaseScene):
         # Slider paramaterized
         SLIDER = self.params.slider_size
         SLIDER_REF = [RAMP_CORNER[0], RAMP_CORNER[1] + RAMP_HEIGHT, 0]
-        sliderMass = SLIDER ** 2 * DENSITY
+        slider_mass = SLIDER ** 2 * DENSITY
         slider = Square(side_length=SLIDER, fill_opacity=0.5, color=YELLOWY)
-        sliderFGy = ACC_G * sliderMass
-        sliderDispMag = -(ACC_G * sliderMass) * math.sin(RAMP_ANGLES[1])
-        sliderNormMag = -(ACC_G * sliderMass) * math.cos(RAMP_ANGLES[1])
+        slider_FG_mag = ACC_G * slider_mass
+        slider_FD_mag = -(ACC_G * slider_mass) * math.sin(RAMP_ANGLES[1])
+        slider_FN_mag = -(ACC_G * slider_mass) * math.cos(RAMP_ANGLES[1])
+
+        
 
         # Ramp consturcted from height and base length with 90 degree
         RAMP_COORD = [RAMP_CORNER,
                       [RAMP_CORNER[0] + RAMP_BASE, RAMP_CORNER[1], 0],
                       [RAMP_CORNER[0], RAMP_CORNER[1] + RAMP_HEIGHT, 0]]
+        ramp_corner_right = RAMP_CORNER
+        ramp_corner_theta = RAMP_COORD[1]
+        ramp_corner_phy = RAMP_COORD[2]
         ramp = Polygon(*RAMP_COORD, fill_opacity=0.5, color=PEACHY)
+        
+        # Reflection Force Triangle
+        force_triangle_FG = Vector([-slider_FG_mag, 0, 0]).move_to(RAMP_COORD[1], aligned_edge=RIGHT).rotate(-RAMP_ANGLES[1], about_point=(RAMP_COORD[1]))
+        force_triangle_FN = Vector([slider_FN_mag, 0, 0]).move_to(RAMP_COORD[1], aligned_edge=RIGHT)
+        force_triangle_FD = Vector([0, -slider_FD_mag, 0]).move_to([ramp_corner_theta[0]+slider_FN_mag, ramp_corner_theta[1], ramp_corner_theta[2]], aligned_edge=DOWN)
+        self.add(force_triangle_FG, force_triangle_FN, force_triangle_FD)
 
         # Background Plane
         planeBG = NumberPlane(
@@ -62,15 +73,15 @@ class DynamicScene(BaseScene):
         lengthVector = SLIDER
         vctX = Vector([lengthVector, 0])
         # Force of Gravity Vector, in negative Y direction
-        vctY = Vector([0, -(ACC_G * sliderMass)], color=PERRY)
+        vctY = Vector([0, -(ACC_G * slider_mass)], color=PERRY)
         # Displacement Vector, and its copy to use for reference
-        vctD = Vector([0, -(ACC_G * sliderMass) * math.sin(RAMP_ANGLES[1]), 0],
+        vctD = Vector([0, -(ACC_G * slider_mass) * math.sin(RAMP_ANGLES[1]), 0],
                       color=ROSEY
                       ).rotate(about_point=(slider.get_critical_point((0, 0, 0))),
                                angle=(RAMP_ANGLES[2]))
         vctD2 = vctD.copy().set_color(color=ROSEY)
         # Normal vector of slider on ramp
-        vctN = Vector([0, -(ACC_G * sliderMass) * math.cos(RAMP_ANGLES[1]), 0],
+        vctN = Vector([0, -(ACC_G * slider_mass) * math.cos(RAMP_ANGLES[1]), 0],
                       color=YELLOWY
                       ).rotate(about_point=(slider.get_critical_point((0, 0, 0))),
                                angle=-RAMP_ANGLES[1])
@@ -78,21 +89,21 @@ class DynamicScene(BaseScene):
         # TEXT FORMULAE
         thetaText = MathTex(r'\theta').move_to([RAMP_COORD[1][0] - RAMP_BASE / 4 - 0.2, RAMP_COORD[1][1] + 0.2, 0])
 
-        sliderFGVar = Variable(sliderFGy,
+        sliderFGVar = Variable(slider_FG_mag,
                                MathTex(r'F_g (mg)'),
                                num_decimal_places=1
                                ).move_to([4, 3, 0])
         sliderFGVar.label.set_color(WHITE)
         sliderFGVar.value.set_color(PERRY)
 
-        normalVar = Variable(-sliderNormMag,
+        normalVar = Variable(-slider_FN_mag,
                              MathTex(r'F_N (mg*cos\theta)'),
                              num_decimal_places=1,
                              ).next_to(sliderFGVar, DOWN, aligned_edge=RIGHT)
         normalVar.label.set_color(WHITE)
         normalVar.value.set_color(YELLOWY)
 
-        displacementVar = Variable(-sliderDispMag,
+        displacementVar = Variable(-slider_FD_mag,
                                    MathTex(r'F_D (mg*sin\theta)'),
                                    num_decimal_places=1
                                    ).next_to(normalVar, DOWN, aligned_edge=RIGHT)
@@ -116,7 +127,9 @@ class DynamicScene(BaseScene):
         # Place the slider to the far left ontop of ramp
         slider.move_to(SLIDER_REF, aligned_edge=DL)
 
-        # Display the Ramp and the slider on the scene
+        ##### ANIMATIONS #####
+
+        # Display the Ramp and Slider
         self.play(
             Create(slider),
             Create(ramp),
@@ -161,12 +174,15 @@ class DynamicScene(BaseScene):
         )
         self.wait(2)
 
-        self.play(
-            Rotate(vctGroup, angle=RAMP_ANGLES[1] + (PI/2), about_point=[*vctY.get_end()]),
-        )
-        self.play(
-            vctGroup.animate.flip().move_to(RAMP_COORD[1], aligned_edge=(DR)).shift([0, -0.2, 0]),
-        )
+        # Rotate and flip the Vector Triangle theta into the Ramp Triangle theta
+        # self.play(
+        #     Rotate(vctGroup, angle=RAMP_ANGLES[1] + (PI/2), about_point=[*vctY.get_end()]),
+        # )
+        # self.play(
+        #     vctGroup.animate.flip().move_to(RAMP_COORD[1], aligned_edge=(DR)).shift([0, -0.2, 0]),
+        # )
+
+        
 
         # Slider proceeds to bottom of ramp
         sliderGroup = Group(slider, vctD)
