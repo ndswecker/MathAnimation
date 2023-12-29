@@ -58,7 +58,8 @@ class DynamicScene(BaseScene):
         force_triangle_FG = Vector([-slider_FG_mag, 0, 0]).move_to(RAMP_COORD[1], aligned_edge=RIGHT).rotate(-RAMP_ANGLES[1], about_point=(RAMP_COORD[1]))
         force_triangle_FN = Vector([slider_FN_mag, 0, 0]).move_to(RAMP_COORD[1], aligned_edge=RIGHT)
         force_triangle_FD = Vector([0, -slider_FD_mag, 0]).move_to([ramp_corner_theta[0]+slider_FN_mag, ramp_corner_theta[1], ramp_corner_theta[2]], aligned_edge=DOWN)
-        self.add(force_triangle_FG, force_triangle_FN, force_triangle_FD)
+        force_triangle_prime_group = VGroup(force_triangle_FD, force_triangle_FG, force_triangle_FN)
+        #self.add(force_triangle_FG, force_triangle_FN, force_triangle_FD)
 
         # Background Plane
         planeBG = NumberPlane(
@@ -157,7 +158,7 @@ class DynamicScene(BaseScene):
         vctD2.move_to(slider.get_critical_point((0, 0, 0)), aligned_edge=(LEFT + UP))
         vctY.move_to(slider.get_critical_point((0, 0, 0)), aligned_edge=((0, 0, 0) + UP))
         vctN.move_to(slider.get_critical_point((0, 0, 0)), aligned_edge=(RIGHT + UP))
-        vctGroup = Group(vctD, vctD2, vctY, vctN)
+        vct_force_group = VGroup(vctD, vctD2, vctY, vctN)
 
         # Add Directional vectors and formula in sequence with pauses
         self.play(Create(vctY), Write(sliderFGVar))
@@ -173,6 +174,12 @@ class DynamicScene(BaseScene):
             vctD2.animate.shift(vctN.get_vector())
         )
         self.wait(2)
+
+        # Transform the ghost vector group into the prime theta triangle
+        self.play(
+            Create(force_triangle_prime_group),
+            FadeTransform(vct_force_group, force_triangle_prime_group)
+        )
 
         # Rotate and flip the Vector Triangle theta into the Ramp Triangle theta
         # self.play(
@@ -200,7 +207,7 @@ class DynamicScene(BaseScene):
         self.wait(2)
 
         # Rotate entire slider and ramp group to level and center ramp
-        systemGroup = Group(slider, rampGroup, vctGroup, textGroup)
+        systemGroup = Group(slider, rampGroup, vct_force_group, textGroup)
         newCorner = [RAMP_HEIGHT * math.sin(RAMP_ANGLES[1]), RAMP_CORNER[1], 0]
         self.play(
             Rotate(systemGroup,
