@@ -154,10 +154,10 @@ class DynamicScene(BaseScene):
 
         # Align each vector to the start at the center of the slider
         vctX.move_to(slider.get_critical_point((0, 0, 0)), aligned_edge=(LEFT))
-        vctD.move_to(slider.get_critical_point((0, 0, 0)), aligned_edge=(LEFT + UP))
-        vctD2.move_to(slider.get_critical_point((0, 0, 0)), aligned_edge=(LEFT + UP))
-        vctY.move_to(slider.get_critical_point((0, 0, 0)), aligned_edge=((0, 0, 0) + UP))
-        vctN.move_to(slider.get_critical_point((0, 0, 0)), aligned_edge=(RIGHT + UP))
+        vctD.move_to(slider.get_center(), aligned_edge=(LEFT + UP))
+        vctD2.move_to(slider.get_center(), aligned_edge=(LEFT + UP))
+        vctY.move_to(slider.get_center(), aligned_edge=((0, 0, 0) + UP))
+        vctN.move_to(slider.get_center(), aligned_edge=(RIGHT + UP))
         vct_force_group = VGroup(vctD, vctD2, vctY, vctN)
 
         # Add Directional vectors and formula in sequence with pauses
