@@ -27,35 +27,37 @@ class DynamicScene(BaseScene):
         DENSITY = 0.2
 
         # Ramp paramaterized
-        RAMP_HEIGHT = 5
-        RAMP_BASE = 8
-        RAMP_HYP = math.sqrt(RAMP_HEIGHT ** 2 + RAMP_BASE ** 2)
+        ramp_height = 4
+        ramp_base = 10
+        ramp_calc_hypotenuse = math.sqrt(ramp_height ** 2 + ramp_base ** 2)
         # Angles Start at 90 and go ccw
-        RAMP_ANGLES = [(PI / 2), (math.acos(RAMP_BASE / RAMP_HYP)), (math.acos(RAMP_HEIGHT / RAMP_HYP))]
-        RAMP_CORNER = [-6, -3, 0]
+        ramp_angles_array = [(PI / 2), (math.acos(ramp_base / ramp_calc_hypotenuse)), (math.acos(ramp_height / ramp_calc_hypotenuse))]
+        theta = ramp_angles_array[1]
+        phy = ramp_angles_array[2]
+        ramp_reference_corner = [-6, -3, 0]
 
         # Slider paramaterized
-        SLIDER = self.params.slider_size
-        SLIDER_REF = [RAMP_CORNER[0], RAMP_CORNER[1] + RAMP_HEIGHT, 0]
-        slider_mass = SLIDER ** 2 * DENSITY
-        slider = Square(side_length=SLIDER, fill_opacity=0.5, color=YELLOWY)
+        slider_size = self.params.slider_size
+        SLIDER_REF = [ramp_reference_corner[0], ramp_reference_corner[1] + ramp_height, 0]
+        slider_mass = slider_size ** 2 * DENSITY
+        slider_weight = slider_mass * ACC_G
+        slider = Square(side_length=slider_size, fill_opacity=0.5, color=YELLOWY)
         slider_FG_mag = ACC_G * slider_mass
-        slider_FD_mag = -(ACC_G * slider_mass) * math.sin(RAMP_ANGLES[1])
-        slider_FN_mag = -(ACC_G * slider_mass) * math.cos(RAMP_ANGLES[1])
+        slider_FD_mag = -(ACC_G * slider_mass) * math.sin(ramp_angles_array[1])
+        slider_FN_mag = -(ACC_G * slider_mass) * math.cos(ramp_angles_array[1])
 
         
 
         # Ramp consturcted from height and base length with 90 degree
-        RAMP_COORD = [RAMP_CORNER,
-                      [RAMP_CORNER[0] + RAMP_BASE, RAMP_CORNER[1], 0],
-                      [RAMP_CORNER[0], RAMP_CORNER[1] + RAMP_HEIGHT, 0]]
-        ramp_corner_right = RAMP_CORNER
+        RAMP_COORD = [ramp_reference_corner,
+                      [ramp_reference_corner[0] + ramp_base, ramp_reference_corner[1], 0],
+                      [ramp_reference_corner[0], ramp_reference_corner[1] + ramp_height, 0]]
         ramp_corner_theta = RAMP_COORD[1]
         ramp_corner_phy = RAMP_COORD[2]
         ramp = Polygon(*RAMP_COORD, fill_opacity=0.5, color=PEACHY)
         
         # Reflection Force Triangle
-        force_triangle_FG = Vector([-slider_FG_mag, 0, 0]).move_to(RAMP_COORD[1], aligned_edge=RIGHT).rotate(-RAMP_ANGLES[1], about_point=(RAMP_COORD[1]))
+        force_triangle_FG = Vector([-slider_FG_mag, 0, 0]).move_to(RAMP_COORD[1], aligned_edge=RIGHT).rotate(-ramp_angles_array[1], about_point=(RAMP_COORD[1]))
         force_triangle_FN = Vector([slider_FN_mag, 0, 0]).move_to(RAMP_COORD[1], aligned_edge=RIGHT)
         force_triangle_FD = Vector([0, -slider_FD_mag, 0]).move_to([ramp_corner_theta[0]+slider_FN_mag, ramp_corner_theta[1], ramp_corner_theta[2]], aligned_edge=DOWN)
         force_triangle_prime_group = VGroup(force_triangle_FD, force_triangle_FG, force_triangle_FN)
@@ -70,57 +72,64 @@ class DynamicScene(BaseScene):
         )
         self.add(planeBG)
 
-        # DIRECTION VECTORS
-        lengthVector = SLIDER
-        vctX = Vector([lengthVector, 0])
+        #### DIRECTION VECTORS ####
+
         # Force of Gravity Vector, in negative Y direction
-        vctY = Vector([0, -(ACC_G * slider_mass)], color=PERRY)
+        vctY = Vector(
+            direction=[0, -slider_weight, 0],
+            color=PERRY)
         # Displacement Vector, and its copy to use for reference
-        vctD = Vector([0, -(ACC_G * slider_mass) * math.sin(RAMP_ANGLES[1]), 0],
-                      color=ROSEY
-                      ).rotate(about_point=(slider.get_critical_point((0, 0, 0))),
-                               angle=(RAMP_ANGLES[2]))
+        vctD = Vector(
+            direction= [0, -slider_weight * math.sin(theta), 0],
+            color=ROSEY
+            ).rotate(angle=(phy))
         vctD2 = vctD.copy().set_color(color=ROSEY)
         # Normal vector of slider on ramp
-        vctN = Vector([0, -(ACC_G * slider_mass) * math.cos(RAMP_ANGLES[1]), 0],
-                      color=YELLOWY
-                      ).rotate(about_point=(slider.get_critical_point((0, 0, 0))),
-                               angle=-RAMP_ANGLES[1])
+        vctN = Vector(
+            direction=[0, -slider_weight * math.cos(theta), 0],
+            color=YELLOWY
+            ).rotate(angle=-theta)
 
         # TEXT FORMULAE
-        thetaText = MathTex(r'\theta').move_to([RAMP_COORD[1][0] - RAMP_BASE / 4 - 0.2, RAMP_COORD[1][1] + 0.2, 0])
+        thetaText = MathTex(
+            r'\theta'
+            ).move_to([
+                RAMP_COORD[1][0] - ramp_base / 4 - 0.2,
+                RAMP_COORD[1][1] + 0.2,
+                0]
+            )
 
-        sliderFGVar = Variable(slider_FG_mag,
-                               MathTex(r'F_g (mg)'),
-                               num_decimal_places=1
-                               ).move_to([4, 3, 0])
-        sliderFGVar.label.set_color(WHITE)
+        sliderFGVar = Variable(
+            var=slider_FG_mag,
+            label=MathTex(r'F_G (mg)', color=WHITE),
+            num_decimal_places=1,
+            ).move_to([4, 3, 0])
         sliderFGVar.value.set_color(PERRY)
 
-        normalVar = Variable(-slider_FN_mag,
-                             MathTex(r'F_N (mg*cos\theta)'),
-                             num_decimal_places=1,
-                             ).next_to(sliderFGVar, DOWN, aligned_edge=RIGHT)
-        normalVar.label.set_color(WHITE)
+        normalVar = Variable(
+            var=-slider_FN_mag,
+            label=MathTex(r'F_N (mg*cos\theta)', color=WHITE),
+            num_decimal_places=1,
+            ).next_to(sliderFGVar, DOWN, aligned_edge=RIGHT)
         normalVar.value.set_color(YELLOWY)
 
-        displacementVar = Variable(-slider_FD_mag,
-                                   MathTex(r'F_D (mg*sin\theta)'),
-                                   num_decimal_places=1
-                                   ).next_to(normalVar, DOWN, aligned_edge=RIGHT)
-        displacementVar.label.set_color(WHITE)
+        displacementVar = Variable(
+            var=-slider_FD_mag,
+            label=MathTex(r'F_D (mg*sin\theta)', color=WHITE),
+            num_decimal_places=1,
+            ).next_to(normalVar, DOWN, aligned_edge=RIGHT)
         displacementVar.value.set_color(ROSEY)
 
         # DIMENSIONS of Ramp dispayed
-        rampHeightText = Integer(number=RAMP_HEIGHT).move_to(ramp.get_critical_point(LEFT), aligned_edge=RIGHT).shift(
+        rampHeightText = Integer(number=ramp_height).move_to(ramp.get_critical_point(LEFT), aligned_edge=RIGHT).shift(
             [-0.2, 0, 0])
-        rampBaseText = Integer(number=RAMP_BASE).move_to(ramp.get_critical_point(DOWN), aligned_edge=UP).shift(
+        rampBaseText = Integer(number=ramp_base).move_to(ramp.get_critical_point(DOWN), aligned_edge=UP).shift(
             [0, -0.2, 0])
 
         # RAMP INCLINE ANGLE
         line1 = Line(start=RAMP_COORD[1], end=RAMP_COORD[2])
         line2 = Line(start=RAMP_COORD[1], end=RAMP_COORD[0])
-        thetaArc = Angle(line1, line2, radius=(RAMP_BASE / 4))
+        thetaArc = Angle(line1, line2, radius=(ramp_base / 4))
         rampGroup = Group(ramp, thetaArc)
 
         textGroup = Group(rampBaseText, rampHeightText, thetaText)
@@ -143,7 +152,7 @@ class DynamicScene(BaseScene):
         self.play(
             Rotate(
                 slider,
-                angle=-RAMP_ANGLES[1],
+                angle=-ramp_angles_array[1],
                 about_point=[*SLIDER_REF]
             ),
             Create(thetaArc),
@@ -153,7 +162,6 @@ class DynamicScene(BaseScene):
         self.wait(1)
 
         # Align each vector to the start at the center of the slider
-        vctX.move_to(slider.get_critical_point((0, 0, 0)), aligned_edge=(LEFT))
         vctD.move_to(slider.get_center(), aligned_edge=(LEFT + UP))
         vctD2.move_to(slider.get_center(), aligned_edge=(LEFT + UP))
         vctY.move_to(slider.get_center(), aligned_edge=((0, 0, 0) + UP))
@@ -194,33 +202,33 @@ class DynamicScene(BaseScene):
         # Slider proceeds to bottom of ramp
         sliderGroup = Group(slider, vctD)
         self.play(
-            sliderGroup.animate.shift([(RAMP_HYP - SLIDER) * math.cos(RAMP_ANGLES[1]),
-                                       (RAMP_HYP - SLIDER) * -math.sin(RAMP_ANGLES[1]), 0])
+            sliderGroup.animate.shift([(ramp_calc_hypotenuse - slider_size) * math.cos(ramp_angles_array[1]),
+                                       (ramp_calc_hypotenuse - slider_size) * -math.sin(ramp_angles_array[1]), 0])
         )
         self.wait(2)
 
         # Slider returns to original postion
         self.play(
-            sliderGroup.animate.shift([-(RAMP_HYP - SLIDER) * math.cos(RAMP_ANGLES[1]),
-                                       (RAMP_HYP - SLIDER) * math.sin(RAMP_ANGLES[1]), 0])
+            sliderGroup.animate.shift([-(ramp_calc_hypotenuse - slider_size) * math.cos(ramp_angles_array[1]),
+                                       (ramp_calc_hypotenuse - slider_size) * math.sin(ramp_angles_array[1]), 0])
         )
         self.wait(2)
 
         # Rotate entire slider and ramp group to level and center ramp
         systemGroup = Group(slider, rampGroup, vct_force_group, textGroup)
-        newCorner = [RAMP_HEIGHT * math.sin(RAMP_ANGLES[1]), RAMP_CORNER[1], 0]
+        newCorner = [ramp_height * math.sin(ramp_angles_array[1]), ramp_reference_corner[1], 0]
         self.play(
             Rotate(systemGroup,
-                   RAMP_ANGLES[1],
-                   about_point=[*RAMP_CORNER])
+                   ramp_angles_array[1],
+                   about_point=[*ramp_reference_corner])
         )
         self.play(
             systemGroup.animate.shift([newCorner[0], 0, 0]),
         )
         self.play(
-            Rotate(rampBaseText, -RAMP_ANGLES[1], about_point=rampBaseText.get_center()),
-            Rotate(rampHeightText, -RAMP_ANGLES[1], about_point=rampHeightText.get_center()),
-            Rotate(thetaText, -RAMP_ANGLES[1], about_point=thetaText.get_center())
+            Rotate(rampBaseText, -ramp_angles_array[1], about_point=rampBaseText.get_center()),
+            Rotate(rampHeightText, -ramp_angles_array[1], about_point=rampHeightText.get_center()),
+            Rotate(thetaText, -ramp_angles_array[1], about_point=thetaText.get_center())
         )
         self.wait(2)
 

@@ -18,3 +18,7 @@ install
 ```shell
 run
 ```
+
+## Run for Nate
+1. In cmd .venv\Scripts\activate
+2. flask run
