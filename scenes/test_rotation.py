@@ -1,16 +1,6 @@
 import math
 from manim import *
-
-def distance_rotated(object, angle):
-    radius = object.side_length / 2
-    return angle * radius
-
-def distance_vector(object, angle, compliment):
-    radius = object.side_length / 2
-    displacement = compliment * radius
-    d_x = displacement * math.cos(angle)
-    d_y = displacement * math.sin(angle)
-    return Vector([d_x, -d_y, 0])
+from custom_objects.rotating_square import RotatingSquare
 
 class RotatingSquare:
     def __init__(self, side_length, starting_postion):
@@ -20,19 +10,17 @@ class RotatingSquare:
     
     def displacement_magnitude(self):
         displacement = math.sqrt(
-            (self.starting_postion[0] - self.ending_postion[0]) ** 2
+            (self.ending_postion[0] - self.starting_postion[0]) ** 2
             +
-            (self.starting_postion[1] - self.ending_postion[1]) ** 2
+            (self.ending_postion[1] - self.starting_postion[1]) ** 2
         )
         return displacement
     
     def displacement_x(self):
-        displacement = math.sqrt(abs(self.starting_postion[0] - self.ending_postion[0] ** 2))
-        return displacement
+        return math.sqrt((self.starting_postion[0] - self.ending_postion[0]) ** 2)
     
     def displacement_y(self):
-        displacement = math.sqrt(abs(self.starting_postion[1] - self.ending_postion[1] ** 2))
-        return displacement
+        return math.sqrt((self.ending_postion[1] - self.starting_postion[1]) ** 2)
     
 class RotateSquare(Scene):
     def construct(self):
