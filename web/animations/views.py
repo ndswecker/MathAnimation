@@ -40,3 +40,18 @@ def sliding_block_view():
             scene.render()
             file_path = f"media/dynamic/{file_name}"
     return render_template("animations/sliding_block.html", file_path=file_path, form=form)
+
+def rotating_square_view():
+    form: forms.RotatingSquareForm()
+    file_path = "media/default/RotatingSquare.mp4"
+    if request.method == "POST":
+        if form.validate_on_submit():
+            params = rotating_square.Params(
+                rotation_radian=request.form["rotation_radian"],
+            )
+            scene = rotating_square.DynamicScene(params=params)
+            file_name = f"{uuid.uuid4().hex}.mp4"
+            scene.renderer.file_writer.movie_file_path = settings.DYNAMIC_VIDEO_DIR / file_name
+            scene.render()
+            file_path = f"media/dynamic/{file_name}"
+    return render_template("animations/rotating_square.html", file_path=file_path, form=form)
