@@ -27,3 +27,10 @@ router.add_url_rule(
     view_func=views.sliding_block_view,
     methods=["GET", "POST"],
 )
+
+router.add_url_rule(
+    rule="/rotating_square",
+    endpoint="rotating_square"
+    view_func=views.rotating_square_view,
+    methods=["GET", "POST"]
+)
