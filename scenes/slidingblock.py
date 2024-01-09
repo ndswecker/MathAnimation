@@ -121,7 +121,7 @@ class DynamicScene(BaseScene):
         displacementVar.value.set_color(ROSEY)
 
         # DIMENSIONS of Ramp dispayed
-        rampHeightText = Integer(number=ramp_height).move_to(ramp.get_critical_point(LEFT), aligned_edge=RIGHT).shift(
+        ramp_height_text = Integer(number=ramp_height).move_to(ramp.get_critical_point(LEFT), aligned_edge=RIGHT).shift(
             [-0.2, 0, 0])
         rampBaseText = Integer(number=ramp_base).move_to(ramp.get_critical_point(DOWN), aligned_edge=UP).shift(
             [0, -0.2, 0])
@@ -132,7 +132,7 @@ class DynamicScene(BaseScene):
         thetaArc = Angle(line1, line2, radius=(ramp_base / 4))
         rampGroup = Group(ramp, thetaArc)
 
-        textGroup = Group(rampBaseText, rampHeightText, thetaText)
+        textGroup = Group(rampBaseText, ramp_height_text, thetaText)
 
         # Place the slider to the far left ontop of ramp
         slider.move_to(SLIDER_REF, aligned_edge=DL)
@@ -143,7 +143,7 @@ class DynamicScene(BaseScene):
         self.play(
             Create(slider),
             Create(ramp),
-            Write(rampHeightText),
+            Write(ramp_height_text),
             Write(rampBaseText),
         )
         self.wait(1)
@@ -227,7 +227,7 @@ class DynamicScene(BaseScene):
         )
         self.play(
             Rotate(rampBaseText, -ramp_angles_array[1], about_point=rampBaseText.get_center()),
-            Rotate(rampHeightText, -ramp_angles_array[1], about_point=rampHeightText.get_center()),
+            Rotate(ramp_height_text, -ramp_angles_array[1], about_point=ramp_height_text.get_center()),
             Rotate(thetaText, -ramp_angles_array[1], about_point=thetaText.get_center())
         )
         self.wait(2)

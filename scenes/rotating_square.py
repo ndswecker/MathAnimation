@@ -1,26 +1,17 @@
 import math
 from manim import *
-from scenes.custom_objects.square_rotatable import RotatingSquare
+from manim.utils.file_ops import open_file as open_media_file
+from custom_objects.square_rotatable import RotatingSquare
 
-class RotatingSquare:
-    def __init__(self, side_length, starting_postion):
-        self.side_length = side_length
-        self.starting_postion = starting_postion
-        self.ending_postion = [0,0,0]
-    
-    def displacement_magnitude(self):
-        displacement = math.sqrt(
-            (self.ending_postion[0] - self.starting_postion[0]) ** 2
-            +
-            (self.ending_postion[1] - self.starting_postion[1]) ** 2
-        )
-        return displacement
-    
-    def displacement_x(self):
-        return math.sqrt((self.starting_postion[0] - self.ending_postion[0]) ** 2)
-    
-    def displacement_y(self):
-        return math.sqrt((self.ending_postion[1] - self.starting_postion[1]) ** 2)
+try:
+    from scenes.base import BaseScene
+except ModuleNotFoundError:
+    from base import BaseScene
+
+from pydantic import BaseModel
+
+class Params(BaseModel):
+    rotation_radian: float= PI / 2
     
 class RotateSquare(Scene):
     def construct(self):
