@@ -30,7 +30,7 @@ router.add_url_rule(
 
 router.add_url_rule(
     rule="/rotating_square",
-    endpoint="rotating_square"
+    endpoint="rotating_square",
     view_func=views.rotating_square_view,
-    methods=["GET", "POST"]
+    methods=["GET", "POST"],
 )
